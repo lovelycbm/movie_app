@@ -1,41 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Movie from '../components/Movie';
 import './Home.css';
 
-class Home extends React.Component {
-  state = {
-    isLoading: true,
-    movies: [],
-  };
 
-  getMovies = async () => {
-    const {
-      data: {
-        data: { movies },
-      },
-    } = await axios.get(
-      'https://yts.mx/api/v2/list_movies.json?sort_by=rating',
-    );
-    this.setState({ movies, isLoading: false });
-  };
+export default function Home() {
+    const [loading, setLoading] = useState(true);
+    const [movies, setMovies] = useState({ moives: [] });
+    // const getMovies = async () => {
+    //   const {
+    //     data: {
+    //       data: { movies },
+    //     },
+    //   } = await axios.get(
+    //     'https://yts.mx/api/v2/list_movies.json?sort_by=rating',
+    //   );
+    //   setMovies(movies);
+    //   setLoading(false);      
+    // };
+    
+    useEffect(()=>{
+      async function getMovies(){
+        const {
+          data: {
+            data: { movies },
+          },
+        } = await axios.get(
+          'https://yts.mx/api/v2/list_movies.json?sort_by=rating',
+        );        
+        setMovies(movies);
+        setLoading(false);
+      }
+      getMovies();            
+    }, []);
 
-  componentDidMount() {
-    this.getMovies();
-  }
-
-  render() {
-    const { isLoading, movies } = this.state;
     return (
-      <section className="container">
-        {isLoading ? (
-          <div className="loader">
+        <section className="container">
+        {loading ? (
+            <div className="loader">
             <span className="loader__text">Loading...</span>
-          </div>
+            </div>
         ) : (
-          <div className="movies">
+            <div className="movies">
             {movies.map((movie) => (
-              <Movie
+                <Movie
                 key={movie.id}
                 id={movie.id}
                 year={movie.year}
@@ -43,13 +51,11 @@ class Home extends React.Component {
                 summary={movie.summary}
                 poster={movie.medium_cover_image}
                 genres={movie.genres}
-              />
+                />
             ))}
-          </div>
+            </div>
         )}
-      </section>
+        </section>
     );
-  }
-}
 
-export default Home;
+}
